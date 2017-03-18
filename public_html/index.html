@@ -20,12 +20,14 @@
         <script src="js/main.js"></script>
     </head>
     <body>
-        <div ng-controller="TapeCtrl">
-            <div class="table-responsive">
+        <div class="row">
+            <div ng-controller="TapeCtrl">
                 <table class="table-bordered">
-                    <tr>
-                        <td ng-repeat="i in cells track by $index">{{ i }}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td ng-repeat="i in cells track by $index">{{ i}}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
