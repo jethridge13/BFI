@@ -20,10 +20,10 @@
         <script src="js/main.js"></script>
     </head>
     <body>
-        
+
         <div class="row">
             <div ng-controller="TapeCtrl">
-                <table class="table-bordered">
+                <table class="table-bordered" id="cellTable">
                     <tbody>
                         <tr>
                             <td ng-repeat="i in cells track by $index">{{ i}}</td>
@@ -31,20 +31,21 @@
                     </tbody>
                 </table>
             </div>
+            <img src="img/arrow.png" style="margin-left: 11.4%;">
         </div>
-        
+
         <div class="row" id="buttonRow">
             <button class="btn btn-default">Start</button>
             <button class="btn btn-default">Step</button>
             <button class="btn btn-default" disabled>Pause</button>
             <button class="btn btn-default" disabled>Stop</button>
         </div>
-        
+
         <div class="row">
             <textarea>
                 
             </textarea>
         </div>
-        
+
     </body>
 </html>
