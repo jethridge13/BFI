@@ -26,19 +26,18 @@
                 <table class="table-bordered" id="cellTable">
                     <tbody>
                         <tr>
-                            <td ng-repeat="i in cells track by $index">{{ i}}</td>
+                            <td ng-repeat="i in cells track by $index">{{ i }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <img src="img/arrow.png" style="margin-left: 11.4%;">
         </div>
 
         <div class="row" id="buttonRow">
-            <button class="btn btn-default">Start</button>
-            <button class="btn btn-default">Step</button>
-            <button class="btn btn-default" disabled>Pause</button>
-            <button class="btn btn-default" disabled>Stop</button>
+            <button id="startButton" class="btn btn-default">Start</button>
+            <button id="stepButton" class="btn btn-default">Step</button>
+            <button id="pauseButton" class="btn btn-default" disabled>Pause</button>
+            <button id="stopButton" class="btn btn-default" disabled>Stop</button>
         </div>
 
         <div class="row">
