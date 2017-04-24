@@ -1,4 +1,5 @@
 //TODO: Function buttons
+//TODO: Character parsing
 //TODO: Optional "Code by hand" method
 //TODO: Add more to index.html
 
@@ -10,19 +11,81 @@ var normalCell = "white";
 var stepWait = 0;
 
 var cursor = 0;
+var running = false;
 
 app.controller('TapeCtrl', ['$scope', function ($scope) {
         $scope.cells = new Array(cells).fill(0);
     }]);
 
+function handleChar(c, line, char){
+    
+    switch(c){
+        case "+":
+            // +    Add one to the current cell
+            var refTab = document.getElementById("cellTable");
+            var row = refTab.rows[0];
+            var col = row.cells[cursor];
+            var value = parseInt(col.innerHTML);
+            value++;
+            if(value > 255){
+                value = 0;
+            }
+            col.innerHTML = value;
+            break;
+        case "-":
+            // -    Subtract one to the current cell
+            var refTab = document.getElementById("cellTable");
+            var row = refTab.rows[0];
+            var col = row.cells[cursor];
+            var value = parseInt(col.innerHTML);
+            value--;
+            if(value < 0){
+                value = 255;
+            }
+            col.innerHTML = value;
+            break;
+        case ">":
+            // >    Increment cursor
+            incrementCursor();
+            break;
+        case "<":
+            // <    Decrement cursor
+            decrementCursor();
+            break;
+        case ".":
+            // .    Print char
+            //TODO
+            break;
+        case ",":
+            // ,    Accept char
+            //TODO
+            break;
+        case "[":
+            // [    Start of loop
+            //TODO
+            break;
+        case "]":
+            // ]    End of loop
+            //TODO
+            break;
+    }
+}
+
 function startButton() {
+    if (!running){
+        $("#startButton").prop("disabled", true);
+        
+        $("#pauseButton").prop("disabled", false);
+        $("#stopButton").prop("disabled", false);
+    }
 }
 
 function pauseButton() {
-
+    
 }
 
 function stepButton() {
+    
 }
 
 function stopButton() {
