@@ -13,6 +13,9 @@ var stepWait = 0;
 var cursor = 0;
 var running = false;
 
+var panelVisible = false;
+var inputVisible = true;
+
 app.controller('TapeCtrl', ['$scope', function ($scope) {
         $scope.cells = new Array(cells).fill(0);
     }]);
@@ -74,22 +77,36 @@ function handleChar(c, line, char){
 function startButton() {
     if (!running){
         $("#startButton").prop("disabled", true);
-        
         $("#pauseButton").prop("disabled", false);
         $("#stopButton").prop("disabled", false);
+        
+        togglePanel();
+        toggleInput();
+        
+        running = true;
     }
 }
 
 function pauseButton() {
-    
+    //TODO
 }
 
 function stepButton() {
-    
+    //TODO
 }
 
 function stopButton() {
-
+    //TODO
+    if(running) {
+        $("#startButton").prop("disabled", false);
+        $("#pauseButton").prop("disabled", true);
+        $("#stopButton").prop("disabled", true);
+        
+        togglePanel();
+        toggleInput();
+        
+        running = false;
+    }
 }
 
 function adjustPointer() {
@@ -125,6 +142,27 @@ function incrementPointer() {
 function decrementPointer() {
     cursor--;
     adjustPointer();
+}
+
+function toggleInput(){
+    if(!inputVisible){
+        $("#code").show();
+        inputVisible = true;
+    } else {
+        $("#code").hide();
+        inputVisible = false;
+    }
+}
+
+function togglePanel(){
+    document.getElementById("panelBody").innerHTML = $("#code").val();
+    if(!panelVisible){
+        $("#outputPanel").show();
+        panelVisible = true;
+    } else {
+        $("#outputPanel").hide();
+        panelVisible = false;
+    }
 }
 
 $(document).ready(function () {

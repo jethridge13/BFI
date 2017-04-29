@@ -30,6 +30,11 @@ textarea {
     max-width: 80%;
 }
 
+#outputPanel {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
 
 
 
