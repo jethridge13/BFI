@@ -1,10 +1,11 @@
 //TODO: Function buttons
-//TODO: Character parsing
 //TODO: Optional "Code by hand" method
 //TODO Refactor the three runtime fields all into one div to make
 //      hiding and showing easier.
 //TODO: Consolidate running, paused, and waitingForInput into enumerable states
 //TODO: Add a dropdown to allow for code examples
+//TODO: Bug with loops
+//TODO: Finish implementing step
 
 var app = angular.module('BFI', []);
 var cells = 20;
@@ -17,6 +18,7 @@ var paused = false;
 var waitingForInput = false;
 
 var cursor = 0;
+var loopStack = [];
 
 var panelVisible = false;
 var inputVisible = true;
@@ -26,7 +28,8 @@ app.controller('TapeCtrl', ['$scope', function ($scope) {
     }]);
 
 function handleChar(c, line, char){
-    
+    tup = [line, char];
+    //console.log("Tup: " + tup);
     switch(c){
         case "+":
             // +    Add one to the current cell
@@ -66,13 +69,24 @@ function handleChar(c, line, char){
             break;
         case "[":
             // [    Start of loop
-            //TODO
+            loopStack.push(tup);
+            console.log("Stack push: " + tup);
+            console.log(loopStack);
             break;
         case "]":
             // ]    End of loop
-            //TODO
+            var counter = getValueFromCursor();
+            if(counter === 0){
+                tup = loopStack.pop();
+                console.log("Stack pop: " + tup);
+                console.log(loopStack);
+            }
+            //tup[0]--;
+            tup[1]--;
             break;
     }
+    
+    return tup;
 }
 
 function getValueFromCursor(){
@@ -250,11 +264,17 @@ function initializeArray(){
         if(rawCode[i] === "\n"){
             codeArray.push([]);
             line++;
-        } else {
+        } else if(rawCode[i] !== " "){
             codeArray[line].push(rawCode[i]);
         }
     }
-    return codeArray;
+    var arr = []
+    for(var i = 0; i < codeArray.length; i++){
+        if(codeArray[i] && codeArray[i].length > 0){
+            arr.push(codeArray[i]);
+        }
+    }
+    return arr;
 }
 
 function zeroArray(){
@@ -268,10 +288,15 @@ function zeroArray(){
 }
 
 function handleCode(codeArray){
+    console.log(codeArray);
     //TODO Only run while running is true
     for(var i = 0; i < codeArray.length; i++){
         for(var j = 0; j < codeArray[i].length; j++){
-            handleChar(codeArray[i][j]);
+            //console.log(i + " " + j);
+            var tup = handleChar(codeArray[i][j], i, j);
+            //console.log(tup);
+            i = tup[0];
+            j = tup[1];
         }
     }
 }
