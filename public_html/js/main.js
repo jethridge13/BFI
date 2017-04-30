@@ -5,13 +5,14 @@
 
 var app = angular.module('BFI', []);
 var cells = 20;
-var highlightedCell = "red";
+var highlightedCell = "#bfbfbf";
 var normalCell = "white";
 
 var stepWait = 0;
+var running = false;
+var paused = false;
 
 var cursor = 0;
-var running = false;
 
 var panelVisible = false;
 var inputVisible = true;
@@ -25,27 +26,21 @@ function handleChar(c, line, char){
     switch(c){
         case "+":
             // +    Add one to the current cell
-            var refTab = document.getElementById("cellTable");
-            var row = refTab.rows[0];
-            var col = row.cells[cursor];
-            var value = parseInt(col.innerHTML);
+            var value = getValueFromCursor();
             value++;
             if(value > 255){
                 value = 0;
             }
-            col.innerHTML = value;
+            updateValueAtCursor(value);
             break;
         case "-":
             // -    Subtract one to the current cell
-            var refTab = document.getElementById("cellTable");
-            var row = refTab.rows[0];
-            var col = row.cells[cursor];
-            var value = parseInt(col.innerHTML);
+            var value = getValueFromCursor();
             value--;
             if(value < 0){
                 value = 255;
             }
-            col.innerHTML = value;
+            updateValueAtCursor(value);
             break;
         case ">":
             // >    Increment cursor
@@ -57,7 +52,9 @@ function handleChar(c, line, char){
             break;
         case ".":
             // .    Print char
-            //TODO
+            var value = getValueFromCursor();
+            var characterToPrint = String.fromCharCode(value);
+            $("#outputBody").append(characterToPrint);
             break;
         case ",":
             // ,    Accept char
@@ -74,6 +71,21 @@ function handleChar(c, line, char){
     }
 }
 
+function getValueFromCursor(){
+    var refTab = document.getElementById("cellTable");
+    var row = refTab.rows[0];
+    var col = row.cells[cursor];
+    var value = parseInt(col.innerHTML);
+    return value;
+}
+
+function updateValueAtCursor(value){
+    var refTab = document.getElementById("cellTable");
+    var row = refTab.rows[0];
+    var col = row.cells[cursor];
+    col.innerHTML = value;
+}
+
 function startButton() {
     if (!running){
         $("#startButton").prop("disabled", true);
@@ -82,6 +94,9 @@ function startButton() {
         
         togglePanel();
         toggleInput();
+        adjustPointer();
+        var codeArray = initializeArray();
+        handleCode(codeArray);
         
         running = true;
     }
@@ -89,6 +104,21 @@ function startButton() {
 
 function pauseButton() {
     //TODO
+    if(running && !paused){
+        $("#stepButton").prop("disabled", false);
+        $("#pauseButton").prop("class", "btn btn-success");
+        $("#pauseButton").html("Resume");
+        
+        paused = true;
+        running = false;
+    } else if (!running && paused) {
+        $("#stepButton").prop("disabled", true);
+        $("#pauseButton").prop("class", "btn btn-warning");
+        $("#pauseButton").html("Pause");
+        
+        paused = false;
+        running = true;
+    }
 }
 
 function stepButton() {
@@ -96,16 +126,21 @@ function stepButton() {
 }
 
 function stopButton() {
-    //TODO
-    if(running) {
+    if(running || paused) {
         $("#startButton").prop("disabled", false);
         $("#pauseButton").prop("disabled", true);
+        $("#pauseButton").prop("class", "btn btn-warning");
+        $("#pauseButton").html("Pause");
         $("#stopButton").prop("disabled", true);
         
         togglePanel();
         toggleInput();
         
+        cursor = 0;
+        codeArray = [];
+        
         running = false;
+        paused = false;
     }
 }
 
@@ -117,7 +152,7 @@ function adjustPointer() {
             message:     "Cursor tried to access memory out of bounds.",
             htmlMessage: "Cursor tried to access memory out of bounds.",
             toString:    function(){return this.name + ": " + this.message;}
-        }
+        };
     }
     var refTab = document.getElementById("cellTable");
     // Loop through all rows and columns of the table and popup alert with the value
@@ -155,14 +190,39 @@ function toggleInput(){
 }
 
 function togglePanel(){
-    document.getElementById("panelBody").innerHTML = $("#code").val();
+    var rawCode = $("#code").val();
+    rawCode = rawCode.replace(/\n/g, "<br>");
+    $("#codeBody").html(rawCode);
     if(!panelVisible){
         $("#outputPanel").show();
+        $("#codePanel").show();
         panelVisible = true;
     } else {
         $("#outputPanel").hide();
+        $("#codePanel").hide();
         panelVisible = false;
     }
+}
+
+function initializeArray(){
+    var rawCode = $("#code").val();
+    var codeArray = [];
+    codeArray.push([]);
+    var line = 0;
+    for(var i = 0; i < rawCode.length; i++){
+        if(rawCode[i] === "\n"){
+            codeArray.push([]);
+            line++;
+        } else {
+            codeArray[line].push(rawCode[i]);
+        }
+    }
+    return codeArray;
+}
+
+function handleCode(codeArray){
+    //TODO
+    
 }
 
 $(document).ready(function () {

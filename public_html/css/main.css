@@ -30,7 +30,8 @@ textarea {
     max-width: 80%;
 }
 
-#outputPanel {
+#outputPanel, 
+#codePanel {
     margin-left: 10%;
     margin-right: 10%;
 }

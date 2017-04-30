@@ -34,10 +34,10 @@
         </div>
 
         <div class="row" id="buttonRow">
-            <button id="startButton" class="btn btn-default">Start</button>
-            <button id="stepButton" class="btn btn-default">Step</button>
-            <button id="pauseButton" class="btn btn-default" disabled>Pause</button>
-            <button id="stopButton" class="btn btn-default" disabled>Stop</button>
+            <button id="startButton" class="btn btn-success">Start</button>
+            <button id="stepButton" class="btn btn-default" disabled>Step</button>
+            <button id="pauseButton" class="btn btn-warning" disabled>Pause</button>
+            <button id="stopButton" class="btn btn-danger" disabled>Stop</button>
         </div>
 
         <div class="row">
@@ -46,7 +46,13 @@
             </textarea>
             <div class="panel panel-default" id="outputPanel" hidden>
                 <div class="panel-heading">Output:</div>
-                <div class="panel-body" id="panelBody">
+                <div class="panel-body" id="outputBody">
+                    
+                </div>
+            </div>
+            <div class="panel panel-default" id="codePanel" hidden>
+                <div class="panel-heading">Your code:</div>
+                <div class="panel-body" id="codeBody">
                     
                 </div>
             </div>
