@@ -1,7 +1,10 @@
 //TODO: Function buttons
 //TODO: Character parsing
 //TODO: Optional "Code by hand" method
-//TODO: Add more to index.html
+//TODO Refactor the three runtime fields all into one div to make
+//      hiding and showing easier.
+//TODO: Consolidate running, paused, and waitingForInput into enumerable states
+//TODO: Add a dropdown to allow for code examples
 
 var app = angular.module('BFI', []);
 var cells = 20;
@@ -11,6 +14,7 @@ var normalCell = "white";
 var stepWait = 0;
 var running = false;
 var paused = false;
+var waitingForInput = false;
 
 var cursor = 0;
 
@@ -58,7 +62,7 @@ function handleChar(c, line, char){
             break;
         case ",":
             // ,    Accept char
-            //TODO
+            acceptInput();
             break;
         case "[":
             // [    Start of loop
@@ -86,6 +90,14 @@ function updateValueAtCursor(value){
     col.innerHTML = value;
 }
 
+function acceptInput(){
+    running = false;
+    paused = true;
+    waitingForInput = true;
+    $("#inputForm").show();
+    $("#input").prop("disabled", false);
+}
+
 function startButton() {
     if (!running){
         $("#startButton").prop("disabled", true);
@@ -94,7 +106,7 @@ function startButton() {
         
         togglePanel();
         toggleInput();
-        adjustPointer();
+        adjustCursor();
         var codeArray = initializeArray();
         handleCode(codeArray);
         
@@ -103,7 +115,6 @@ function startButton() {
 }
 
 function pauseButton() {
-    //TODO
     if(running && !paused){
         $("#stepButton").prop("disabled", false);
         $("#pauseButton").prop("class", "btn btn-success");
@@ -132,19 +143,45 @@ function stopButton() {
         $("#pauseButton").prop("class", "btn btn-warning");
         $("#pauseButton").html("Pause");
         $("#stopButton").prop("disabled", true);
+        $("#inputForm").hide();
+        $("#input").prop("disabled", true);
         
         togglePanel();
         toggleInput();
         
         cursor = 0;
         codeArray = [];
+        zeroArray();
         
         running = false;
         paused = false;
     }
 }
 
-function adjustPointer() {
+function submitButton() {
+    if(waitingForInput){
+        var value = $("#input").val();
+        value = value.charCodeAt(0);
+        if (value < 0 || value > 255){
+            throw{
+                name:        "Invalid Input Error",
+                level:       "Bad",
+                message:     "User entered a character out of acceptable range.",
+                htmlMessage: "User netered a character out of acceptable range.",
+                toString:    function(){return this.name + ": " + this.message;}
+            };
+        }
+        updateValueAtCursor(parseInt(value));
+        $("#inputForm").hide();
+        $("#input").prop("disabled", true);
+        
+        waitingForInput = false;
+        paused = false;
+        running = true;
+    }
+}
+
+function adjustCursor() {
     if (cursor < 0 || cursor > cells - 1){
         throw{
             name:        "Memory Error",
@@ -169,14 +206,14 @@ function adjustPointer() {
     }
 }
 
-function incrementPointer() {
+function incrementCursor() {
     cursor++;
-    adjustPointer();
+    adjustCursor();
 }
 
-function decrementPointer() {
+function decrementCursor() {
     cursor--;
-    adjustPointer();
+    adjustCursor();
 }
 
 function toggleInput(){
@@ -220,9 +257,23 @@ function initializeArray(){
     return codeArray;
 }
 
+function zeroArray(){
+    var refTab = document.getElementById("cellTable");
+    for (var i = 0; row = refTab.rows[i]; i++) {
+        row = refTab.rows[i];
+        for (var j = 0; col = row.cells[j]; j++) {
+            col.innerHTML = "0";
+        }
+    }
+}
+
 function handleCode(codeArray){
-    //TODO
-    
+    //TODO Only run while running is true
+    for(var i = 0; i < codeArray.length; i++){
+        for(var j = 0; j < codeArray[i].length; j++){
+            handleChar(codeArray[i][j]);
+        }
+    }
 }
 
 $(document).ready(function () {
@@ -230,4 +281,5 @@ $(document).ready(function () {
     $("#pauseButton").bind("click", pauseButton);
     $("#stepButton").bind("click", stepButton);
     $("#stopButton").bind("click", stopButton);
+    $("#submit").bind("click", submitButton);
 });
