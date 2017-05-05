@@ -12,7 +12,12 @@ var cells = 20;
 var highlightedCell = "#bfbfbf";
 var normalCell = "white";
 
+// How many milliseconds to wait in between steps
 var stepWait = 0;
+// The last used indices when pausing the run
+var lastX = -1;
+var lastY = -1;
+// Status booleans
 var running = false;
 var paused = false;
 var waitingForInput = false;
@@ -27,15 +32,15 @@ app.controller('TapeCtrl', ['$scope', function ($scope) {
         $scope.cells = new Array(cells).fill(0);
     }]);
 
-function handleChar(c, line, char){
+function handleChar(c, line, char) {
     tup = [line, char];
     //console.log("Tup: " + tup);
-    switch(c){
+    switch (c) {
         case "+":
             // +    Add one to the current cell
             var value = getValueFromCursor();
             value++;
-            if(value > 255){
+            if (value > 255) {
                 value = 0;
             }
             updateValueAtCursor(value);
@@ -44,7 +49,7 @@ function handleChar(c, line, char){
             // -    Subtract one to the current cell
             var value = getValueFromCursor();
             value--;
-            if(value < 0){
+            if (value < 0) {
                 value = 255;
             }
             updateValueAtCursor(value);
@@ -76,7 +81,7 @@ function handleChar(c, line, char){
         case "]":
             // ]    End of loop
             var counter = getValueFromCursor();
-            if(counter === 0){
+            if (counter === 0) {
                 tup = loopStack.pop();
                 console.log("Stack pop: " + tup);
                 console.log(loopStack);
@@ -85,11 +90,11 @@ function handleChar(c, line, char){
             tup[1]--;
             break;
     }
-    
+
     return tup;
 }
 
-function getValueFromCursor(){
+function getValueFromCursor() {
     var refTab = document.getElementById("cellTable");
     var row = refTab.rows[0];
     var col = row.cells[cursor];
@@ -97,14 +102,14 @@ function getValueFromCursor(){
     return value;
 }
 
-function updateValueAtCursor(value){
+function updateValueAtCursor(value) {
     var refTab = document.getElementById("cellTable");
     var row = refTab.rows[0];
     var col = row.cells[cursor];
     col.innerHTML = value;
 }
 
-function acceptInput(){
+function acceptInput() {
     running = false;
     paused = true;
     waitingForInput = true;
@@ -113,34 +118,34 @@ function acceptInput(){
 }
 
 function startButton() {
-    if (!running){
+    if (!running) {
         $("#startButton").prop("disabled", true);
         $("#pauseButton").prop("disabled", false);
         $("#stopButton").prop("disabled", false);
-        
+
         togglePanel();
         toggleInput();
         adjustCursor();
         var codeArray = initializeArray();
-        handleCode(codeArray);
-        
+        handleCode(codeArray, 0, 0);
+
         running = true;
     }
 }
 
 function pauseButton() {
-    if(running && !paused){
+    if (running && !paused) {
         $("#stepButton").prop("disabled", false);
         $("#pauseButton").prop("class", "btn btn-success");
         $("#pauseButton").html("Resume");
-        
+
         paused = true;
         running = false;
     } else if (!running && paused) {
         $("#stepButton").prop("disabled", true);
         $("#pauseButton").prop("class", "btn btn-warning");
         $("#pauseButton").html("Pause");
-        
+
         paused = false;
         running = true;
     }
@@ -151,7 +156,7 @@ function stepButton() {
 }
 
 function stopButton() {
-    if(running || paused) {
+    if (running || paused) {
         $("#startButton").prop("disabled", false);
         $("#pauseButton").prop("disabled", true);
         $("#pauseButton").prop("class", "btn btn-warning");
@@ -159,36 +164,38 @@ function stopButton() {
         $("#stopButton").prop("disabled", true);
         $("#inputForm").hide();
         $("#input").prop("disabled", true);
-        
+
         togglePanel();
         toggleInput();
-        
+
         cursor = 0;
         codeArray = [];
         zeroArray();
-        
+
         running = false;
         paused = false;
     }
 }
 
 function submitButton() {
-    if(waitingForInput){
+    if (waitingForInput) {
         var value = $("#input").val();
         value = value.charCodeAt(0);
-        if (value < 0 || value > 255){
+        if (value < 0 || value > 255) {
             throw{
-                name:        "Invalid Input Error",
-                level:       "Bad",
-                message:     "User entered a character out of acceptable range.",
+                name: "Invalid Input Error",
+                level: "Bad",
+                message: "User entered a character out of acceptable range.",
                 htmlMessage: "User netered a character out of acceptable range.",
-                toString:    function(){return this.name + ": " + this.message;}
+                toString: function () {
+                    return this.name + ": " + this.message;
+                }
             };
         }
         updateValueAtCursor(parseInt(value));
         $("#inputForm").hide();
         $("#input").prop("disabled", true);
-        
+
         waitingForInput = false;
         paused = false;
         running = true;
@@ -196,13 +203,15 @@ function submitButton() {
 }
 
 function adjustCursor() {
-    if (cursor < 0 || cursor > cells - 1){
+    if (cursor < 0 || cursor > cells - 1) {
         throw{
-            name:        "Memory Error",
-            level:       "Bad",
-            message:     "Cursor tried to access memory out of bounds.",
+            name: "Memory Error",
+            level: "Bad",
+            message: "Cursor tried to access memory out of bounds.",
             htmlMessage: "Cursor tried to access memory out of bounds.",
-            toString:    function(){return this.name + ": " + this.message;}
+            toString: function () {
+                return this.name + ": " + this.message;
+            }
         };
     }
     var refTab = document.getElementById("cellTable");
@@ -211,7 +220,7 @@ function adjustCursor() {
     for (var i = 0; row = refTab.rows[i]; i++) {
         row = refTab.rows[i];
         for (var j = 0; col = row.cells[j]; j++) {
-            if(j === cursor){
+            if (j === cursor) {
                 col.style = "background-color: " + highlightedCell;
             } else {
                 col.style = "background-color: " + normalCell;
@@ -230,8 +239,8 @@ function decrementCursor() {
     adjustCursor();
 }
 
-function toggleInput(){
-    if(!inputVisible){
+function toggleInput() {
+    if (!inputVisible) {
         $("#code").show();
         inputVisible = true;
     } else {
@@ -240,11 +249,11 @@ function toggleInput(){
     }
 }
 
-function togglePanel(){
+function togglePanel() {
     var rawCode = $("#code").val();
     rawCode = rawCode.replace(/\n/g, "<br>");
     $("#codeBody").html(rawCode);
-    if(!panelVisible){
+    if (!panelVisible) {
         $("#outputPanel").show();
         $("#codePanel").show();
         panelVisible = true;
@@ -255,29 +264,29 @@ function togglePanel(){
     }
 }
 
-function initializeArray(){
+function initializeArray() {
     var rawCode = $("#code").val();
     var codeArray = [];
     codeArray.push([]);
     var line = 0;
-    for(var i = 0; i < rawCode.length; i++){
-        if(rawCode[i] === "\n"){
+    for (var i = 0; i < rawCode.length; i++) {
+        if (rawCode[i] === "\n") {
             codeArray.push([]);
             line++;
-        } else if(rawCode[i] !== " "){
+        } else if (rawCode[i] !== " ") {
             codeArray[line].push(rawCode[i]);
         }
     }
     var arr = []
-    for(var i = 0; i < codeArray.length; i++){
-        if(codeArray[i] && codeArray[i].length > 0){
+    for (var i = 0; i < codeArray.length; i++) {
+        if (codeArray[i] && codeArray[i].length > 0) {
             arr.push(codeArray[i]);
         }
     }
     return arr;
 }
 
-function zeroArray(){
+function zeroArray() {
     var refTab = document.getElementById("cellTable");
     for (var i = 0; row = refTab.rows[i]; i++) {
         row = refTab.rows[i];
@@ -287,18 +296,25 @@ function zeroArray(){
     }
 }
 
-function handleCode(codeArray){
-    console.log(codeArray);
-    //TODO Only run while running is true
-    for(var i = 0; i < codeArray.length; i++){
-        for(var j = 0; j < codeArray[i].length; j++){
-            //console.log(i + " " + j);
-            var tup = handleChar(codeArray[i][j], i, j);
-            //console.log(tup);
-            i = tup[0];
-            j = tup[1];
+function handleCode(codeArray, index1, index2) {
+    setTimeout(function () {
+        console.log(codeArray, index1, index2);
+        //TODO Only run while running is true
+        var tup = handleChar(codeArray[index1][index2], index1, index2);
+        index1 = tup[0];
+        index2 = ++tup[1];
+        if(index2 >= codeArray[index1].length){
+            index1++;
+            index2 = 0;
         }
-    }
+        console.log(codeArray, index1, index2);
+        if(index1 < codeArray.length && index2 < codeArray[index1].length && running){
+            handleCode(codeArray, index1, index2);
+        } else {
+            lastX = index1;
+            lastY = index2;
+        }
+    }, stepWait);
 }
 
 $(document).ready(function () {
