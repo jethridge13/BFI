@@ -1,11 +1,8 @@
-//TODO: Function buttons
+//TODO: Step meter
 //TODO: Optional "Code by hand" method
 //TODO Refactor the three runtime fields all into one div to make
 //      hiding and showing easier.
-//TODO: Consolidate running, paused, and waitingForInput into enumerable states
 //TODO: Add a dropdown to allow for code examples
-//TODO: Bug with loops
-//TODO: Finish implementing step
 
 var app = angular.module('BFI', []);
 var cells = 20;
@@ -18,11 +15,15 @@ var stepWait = 0;
 var lastX = -1;
 var lastY = -1;
 var lastArray = [];
-// Status booleans
-var running = false;
-var paused = false;
-var waitingForInput = false;
-var step = false;
+// Running state
+var runningStates = {
+    STOPPED: -1,
+    PAUSED: 0,
+    RUNNING: 1,
+    STEP: 2,
+    WAITINGFORINPUT: 3,
+};
+var state = runningStates.STOPPED;
 
 var cursor = 0;
 var loopStack = [];
@@ -115,15 +116,13 @@ function updateValueAtCursor(value) {
 }
 
 function acceptInput() {
-    running = false;
-    paused = true;
-    waitingForInput = true;
+    state = runningStates.WAITINGFORINPUT;
     $("#inputForm").show();
     $("#input").prop("disabled", false);
 }
 
 function startButton() {
-    if (!running) {
+    if (state !== runningStates.RUNNING) {
         $("#startButton").prop("disabled", true);
         $("#pauseButton").prop("disabled", false);
         $("#stopButton").prop("disabled", false);
@@ -134,36 +133,50 @@ function startButton() {
         var codeArray = initializeArray();
         handleCode(codeArray, 0, 0);
 
-        running = true;
+        state = runningStates.RUNNING;
     }
 }
 
 function pauseButton() {
-    if (running && !paused) {
+    if (state === runningStates.RUNNING) {
         $("#stepButton").prop("disabled", false);
         $("#pauseButton").prop("class", "btn btn-success");
         $("#pauseButton").html("Resume");
 
-        paused = true;
-        running = false;
-    } else if (!running && paused) {
+        state = runningStates.PAUSED;
+    } else if (state === runningStates.PAUSED || state === runningStates.STEP) {
         $("#stepButton").prop("disabled", true);
         $("#pauseButton").prop("class", "btn btn-warning");
         $("#pauseButton").html("Pause");
 
-        paused = false;
-        running = true;
-    }
+        state = runningStates.RUNNING;
+        
+        handleCode(lastArray, lastX, lastY);
+    } 
 }
 
 function stepButton() {
-    //TODO
-    step = true;
-    handleCode(lastArray, lastX, lastY);
+    if(state === runningStates.STOPPED){
+        $("#pauseButton").prop("disabled", false);
+        $("#startButton").prop("disabled", true);
+        $("#pauseButton").prop("class", "btn btn-success");
+        $("#pauseButton").html("Resume");
+        $("#stopButton").prop("disabled", false);
+        
+        togglePanel();
+        toggleInput();
+        adjustCursor();
+        lastArray = initializeArray();
+        
+        lastX = 0;
+        lastY = 0;
+    } 
+    state = runningStates.STEP;
+    handleCode(lastArray, lastX, lastY); 
 }
 
 function stopButton() {
-    if (running || paused) {
+    if (state === runningStates.RUNNING || state === runningStates.PAUSED) {
         $("#startButton").prop("disabled", false);
         $("#pauseButton").prop("disabled", true);
         $("#pauseButton").prop("class", "btn btn-warning");
@@ -179,13 +192,12 @@ function stopButton() {
         codeArray = [];
         zeroArray();
 
-        running = false;
-        paused = false;
+        state = runningStates.STOPPED;
     }
 }
 
 function submitButton() {
-    if (waitingForInput) {
+    if (state === states.WAITINGFORINPUT) {
         var value = $("#input").val();
         value = value.charCodeAt(0);
         if (value < 0 || value > 255) {
@@ -203,9 +215,8 @@ function submitButton() {
         $("#inputForm").hide();
         $("#input").prop("disabled", true);
 
-        waitingForInput = false;
-        paused = false;
-        running = true;
+        state = runningStates.RUNNING;
+        //TODO Make this start running again
     }
 }
 
@@ -306,7 +317,6 @@ function zeroArray() {
 function handleCode(codeArray, index1, index2) {
     setTimeout(function () {
         console.log(codeArray, index1, index2);
-        //TODO Only run while running is true
         var tup = handleChar(codeArray[index1][index2], index1, index2);
         index1 = tup[0];
         index2 = ++tup[1];
@@ -315,7 +325,7 @@ function handleCode(codeArray, index1, index2) {
             index2 = 0;
         }
         console.log(codeArray, index1, index2);
-        if(index1 < codeArray.length && index2 < codeArray[index1].length && running){
+        if(state === runningStates.RUNNING && index1 < codeArray.length && index2 < codeArray[index1].length){
             handleCode(codeArray, index1, index2);
         } else {
             lastX = index1;
