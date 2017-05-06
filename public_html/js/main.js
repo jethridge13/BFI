@@ -17,10 +17,12 @@ var stepWait = 0;
 // The last used indices when pausing the run
 var lastX = -1;
 var lastY = -1;
+var lastArray = [];
 // Status booleans
 var running = false;
 var paused = false;
 var waitingForInput = false;
+var step = false;
 
 var cursor = 0;
 var loopStack = [];
@@ -81,13 +83,16 @@ function handleChar(c, line, char) {
         case "]":
             // ]    End of loop
             var counter = getValueFromCursor();
-            if (counter === 0) {
-                tup = loopStack.pop();
+            if (counter !== 0) {
+                tup = loopStack[loopStack.length-1];
                 console.log("Stack pop: " + tup);
                 console.log(loopStack);
+                tup[1]--;
+            } else {
+                loopStack.pop();
             }
             //tup[0]--;
-            tup[1]--;
+            //tup[1]--;
             break;
     }
 
@@ -153,6 +158,8 @@ function pauseButton() {
 
 function stepButton() {
     //TODO
+    step = true;
+    handleCode(lastArray, lastX, lastY);
 }
 
 function stopButton() {
@@ -313,6 +320,7 @@ function handleCode(codeArray, index1, index2) {
         } else {
             lastX = index1;
             lastY = index2;
+            lastArray = codeArray;
         }
     }, stepWait);
 }
