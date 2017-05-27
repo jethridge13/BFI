@@ -26,7 +26,7 @@
                 <table class="table-bordered" id="cellTable">
                     <tbody>
                         <tr>
-                            <td ng-repeat="i in cells track by $index">{{ i }}</td>
+                            <td ng-repeat="i in cells track by $index">{{ i}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -39,7 +39,7 @@
             <button id="pauseButton" class="btn btn-warning" disabled>Pause</button>
             <button id="stopButton" class="btn btn-danger" disabled>Stop</button>
         </div>
-        
+
         <div class="row" id="stepDiv">
             <h4><span class="label label-default">Step:</span></h4>
             <input type="range" id="step" value="50" min="0" max="100">
@@ -49,21 +49,23 @@
             <textarea id="code">
                 
             </textarea>
-            <div class="panel panel-default" id="outputPanel" hidden>
-                <div class="panel-heading">Output:</div>
-                <div class="panel-body" id="outputBody">
-                    
+            <div id="runtimePanels" hidden>
+                <div class="panel panel-default" id="outputPanel">
+                    <div class="panel-heading">Output:</div>
+                    <div class="panel-body" id="outputBody">
+
+                    </div>
                 </div>
-            </div>
-            <div class="form-group" id="inputForm" hidden>
-                <label for="input">Input:</label>
-                <input type="text" class="form-control" id="input" disabled>
-                <button type="submit" class="btn btn-default" id="submit">Submit</button>
-            </div>
-            <div class="panel panel-default" id="codePanel" hidden>
-                <div class="panel-heading">Your code:</div>
-                <div class="panel-body" id="codeBody">
-                    
+                <div class="form-group" id="inputForm" hidden>
+                    <label for="input">Input:</label>
+                    <input type="text" class="form-control" id="input" disabled>
+                    <button type="submit" class="btn btn-default" id="submit">Submit</button>
+                </div>
+                <div class="panel panel-default" id="codePanel">
+                    <div class="panel-heading">Your code:</div>
+                    <div class="panel-body" id="codeBody">
+
+                    </div>
                 </div>
             </div>
         </div>

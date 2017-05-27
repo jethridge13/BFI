@@ -1,7 +1,4 @@
-//TODO: Step meter
 //TODO: Optional "Code by hand" method
-//TODO Refactor the three runtime fields all into one div to make
-//      hiding and showing easier.
 //TODO: Add a dropdown to allow for code examples
 
 var app = angular.module('BFI', []);
@@ -37,7 +34,6 @@ app.controller('TapeCtrl', ['$scope', function ($scope) {
 
 function handleChar(c, line, char) {
     tup = [line, char];
-    //console.log("Tup: " + tup);
     switch (c) {
         case "+":
             // +    Add one to the current cell
@@ -127,6 +123,7 @@ function startButton() {
         $("#pauseButton").prop("disabled", false);
         $("#stopButton").prop("disabled", false);
 
+        clearOutput();
         togglePanel();
         toggleInput();
         adjustCursor();
@@ -176,7 +173,8 @@ function stepButton() {
 }
 
 function stopButton() {
-    if (state === runningStates.RUNNING || state === runningStates.PAUSED) {
+    if (state === runningStates.RUNNING || state === runningStates.PAUSED || 
+            state === runningStates.STEP) {
         $("#startButton").prop("disabled", false);
         $("#pauseButton").prop("disabled", true);
         $("#pauseButton").prop("class", "btn btn-warning");
@@ -197,7 +195,7 @@ function stopButton() {
 }
 
 function submitButton() {
-    if (state === states.WAITINGFORINPUT) {
+    if (state === runningStates.WAITINGFORINPUT) {
         var value = $("#input").val();
         value = value.charCodeAt(0);
         if (value < 0 || value > 255) {
@@ -272,12 +270,10 @@ function togglePanel() {
     rawCode = rawCode.replace(/\n/g, "<br>");
     $("#codeBody").html(rawCode);
     if (!panelVisible) {
-        $("#outputPanel").show();
-        $("#codePanel").show();
+        $("#runtimePanels").show();
         panelVisible = true;
     } else {
-        $("#outputPanel").hide();
-        $("#codePanel").hide();
+        $("#runtimePanels").hide();
         panelVisible = false;
     }
 }
@@ -314,9 +310,12 @@ function zeroArray() {
     }
 }
 
+function clearOutput() {
+    $("#outputBody").empty();
+}
+
 function handleCode(codeArray, index1, index2) {
     setTimeout(function () {
-        console.log(codeArray, index1, index2);
         var tup = handleChar(codeArray[index1][index2], index1, index2);
         index1 = tup[0];
         index2 = ++tup[1];
@@ -324,7 +323,6 @@ function handleCode(codeArray, index1, index2) {
             index1++;
             index2 = 0;
         }
-        console.log(codeArray, index1, index2);
         if(state === runningStates.RUNNING && index1 < codeArray.length && index2 < codeArray[index1].length){
             handleCode(codeArray, index1, index2);
         } else {
@@ -335,10 +333,15 @@ function handleCode(codeArray, index1, index2) {
     }, stepWait);
 }
 
+function updateStep() {
+    stepWait = $("#step").val() * 10;
+}
+
 $(document).ready(function () {
     $("#startButton").bind("click", startButton);
     $("#pauseButton").bind("click", pauseButton);
     $("#stepButton").bind("click", stepButton);
     $("#stopButton").bind("click", stopButton);
     $("#submit").bind("click", submitButton);
+    $("#step").bind("change", updateStep);
 });
