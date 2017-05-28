@@ -21,6 +21,7 @@ var runningStates = {
     WAITINGFORINPUT: 3,
 };
 var state = runningStates.STOPPED;
+var lastState = runningStates.STOPPED;
 
 var cursor = 0;
 var loopStack = [];
@@ -88,8 +89,6 @@ function handleChar(c, line, char) {
             } else {
                 loopStack.pop();
             }
-            //tup[0]--;
-            //tup[1]--;
             break;
     }
 
@@ -112,6 +111,7 @@ function updateValueAtCursor(value) {
 }
 
 function acceptInput() {
+    lastState = state;
     state = runningStates.WAITINGFORINPUT;
     $("#inputForm").show();
     $("#input").prop("disabled", false);
@@ -213,8 +213,8 @@ function submitButton() {
         $("#inputForm").hide();
         $("#input").prop("disabled", true);
 
-        state = runningStates.RUNNING;
-        //TODO Make this start running again
+        state = lastState;;
+        handleCode(lastArray, lastX, lastY);
     }
 }
 
@@ -316,7 +316,7 @@ function clearOutput() {
 
 function handleCode(codeArray, index1, index2) {
     setTimeout(function () {
-        var tup = handleChar(codeArray[index1][index2], index1, index2);
+        var tup= handleChar(codeArray[index1][index2], index1, index2);
         index1 = tup[0];
         index2 = ++tup[1];
         if(index2 >= codeArray[index1].length){
