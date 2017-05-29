@@ -41,8 +41,19 @@
         </div>
 
         <div class="row" id="stepDiv">
-            <h4><span class="label label-default">Step:</span></h4>
-            <input type="range" id="step" value="50" min="0" max="100">
+            <div class="col-md-6" id="stepCol">
+                <h4><span class="label label-default">Step:</span></h4>
+                <input type="range" id="step" value="50" min="0" max="100">
+            </div>
+            <div class="col-md-3" ng-controller="ExampleCtrl">
+                <select id="selectExamples" 
+                        ng-model="selectedExample" 
+                        ng-options="item.display for item in examples"
+                        ng-change="loadExample(selectedExample)">
+                    <option value="">Premade Examples</option>
+                </select>
+            </div>
+
         </div>
 
         <div class="row">

@@ -1,5 +1,4 @@
 //TODO: Optional "Code by hand" method
-//TODO: Add a dropdown to allow for code examples
 
 var app = angular.module('BFI', []);
 var cells = 20;
@@ -32,6 +31,25 @@ var inputVisible = true;
 app.controller('TapeCtrl', ['$scope', function ($scope) {
         $scope.cells = new Array(cells).fill(0);
     }]);
+
+app.controller('ExampleCtrl', function ($scope, $http) {
+   $scope.selectedExample = null;
+   $scope.examples = [];
+   
+   $http({
+      method: 'GET',
+      url: './examples.json',
+      data: {applicationId: 3}
+    }).success(function (result) {
+        $scope.examples = result;
+   });
+   
+   $scope.loadExample = function(obj) {
+       if (obj !== null){
+           $("#code").val(obj.code);
+       } 
+   };
+});
 
 function handleChar(c, line, char) {
     tup = [line, char];

@@ -38,9 +38,12 @@ textarea {
 }
 
 #stepDiv {
-    width: 10%;
     margin-left: 10%;
     margin-bottom: 2%;
+}
+
+#stepCol {
+    width: 30%;
 }
 
 
