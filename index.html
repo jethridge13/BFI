@@ -1,0 +1,132 @@
+<!doctype html>
+<html ng-app="BFI">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
+        <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Online BrainF@#$ Interpreter</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="#" onclick="toggleHelp()">Help</a></li>
+                    <li><a href="https://en.wikipedia.org/wiki/Brainfuck" target="_blank">What is this?</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div id="sidehelp" class="sidenav">
+            <style>
+                p, li{
+                    color:graytext;
+                }
+            </style>
+            <a href="javascript:void(0)" onclick="toggleHelp()">Close</a>
+            <p>
+                This is an online tool for the Brainf@#$ programming language. 
+            </p>
+            <p>Here are all of the supported commands:</p>
+            <ul>
+                <li>+   Increase the value of the cell at the pointer by 1</li>
+                <li>-   Decrease the value of the cell at the pointer by 1</li>
+                <li>>   Move the pointer up 1 position</li>
+                <li><   Move the pointer down 1 position</li>
+                <li>[   Start a loop</li>
+                <li>]   End a loop. If the pointer is at 0, the program continues.
+                Otherwise, the loop goes back to the corresponding opening brace.</li>
+                <li>.   Print the character represented by the value at the pointer to the standard output</li>
+                <li>,   Accept one byte of input from standard input</li>
+            </ul>
+            <p>Any characters that are not one of the listed commands is ignored.
+            This includes whitespace.</p>
+            <p>There are included premade programs. To load them, select them from
+            the dropdown menu.</p>
+            <p>Buttons:</p>
+            <ul>
+                <li>Start - Run the program in the text field</li>
+                <li>Step - Run only the next command</li>
+                <li>Pause - Pause execution of the program</li>
+                <li>Stop - Stop execution of the program</li>
+            </ul>
+            <p>The Step meter determines how fast the program will go through
+            each command. You can slow down or increase the execution speed by
+            adjusting the meter.</p>
+        </div>
+        <div class="row">
+            <div ng-controller="TapeCtrl">
+                <table class="table-bordered" id="cellTable">
+                    <tbody>
+                        <tr>
+                            <td ng-repeat="i in cells track by $index">{{ i}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row" id="buttonRow">
+            <button id="startButton" class="btn btn-success">Start</button>
+            <button id="stepButton" class="btn btn-default">Step</button>
+            <button id="pauseButton" class="btn btn-warning" disabled>Pause</button>
+            <button id="stopButton" class="btn btn-danger" disabled>Stop</button>
+        </div>
+
+        <div class="row" id="stepDiv">
+            <div class="col-md-6" id="stepCol">
+                <h4><span class="label label-default">Step:</span></h4>
+                <input type="range" id="step" value="50" min="0" max="100">
+            </div>
+            <div class="col-md-3" ng-controller="ExampleCtrl">
+                <select id="selectExamples" 
+                        ng-model="selectedExample" 
+                        ng-options="item.display for item in examples"
+                        ng-change="loadExample(selectedExample)">
+                    <option value="">Premade Examples</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <textarea id="code">
+                
+            </textarea>
+            <div id="runtimePanels" hidden>
+                <div class="panel panel-default" id="outputPanel">
+                    <div class="panel-heading">Output:</div>
+                    <div class="panel-body" id="outputBody">
+
+                    </div>
+                </div>
+                <div class="form-group" id="inputForm" hidden>
+                    <label for="input">Input:</label>
+                    <input type="text" class="form-control" id="input" disabled>
+                    <button type="submit" class="btn btn-default" id="submit">Submit</button>
+                </div>
+                <div class="panel panel-default" id="codePanel">
+                    <div class="panel-heading">Your code:</div>
+                    <div class="panel-body" id="codeBody">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
