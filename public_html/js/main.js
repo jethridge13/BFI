@@ -1,4 +1,7 @@
 //TODO: Optional "Code by hand" method
+// TODO: BUG: When clicking step while running, Pause button doesn't say Resume
+// as it should.
+// TODO Error handling for memory stuff
 
 var app = angular.module('BFI', []);
 var cells = 20;
@@ -28,27 +31,29 @@ var loopStack = [];
 var panelVisible = false;
 var inputVisible = true;
 
+var helpOpen = false;
+
 app.controller('TapeCtrl', ['$scope', function ($scope) {
         $scope.cells = new Array(cells).fill(0);
     }]);
 
 app.controller('ExampleCtrl', function ($scope, $http) {
-   $scope.selectedExample = null;
-   $scope.examples = [];
-   
-   $http({
-      method: 'GET',
-      url: './examples.json',
-      data: {applicationId: 3}
+    $scope.selectedExample = null;
+    $scope.examples = [];
+
+    $http({
+        method: 'GET',
+        url: './examples.json',
+        data: {applicationId: 3}
     }).success(function (result) {
         $scope.examples = result;
-   });
-   
-   $scope.loadExample = function(obj) {
-       if (obj !== null){
-           $("#code").val(obj.code);
-       } 
-   };
+    });
+
+    $scope.loadExample = function (obj) {
+        if (obj !== null) {
+            $("#code").val(obj.code);
+        }
+    };
 });
 
 function handleChar(c, line, char) {
@@ -100,7 +105,7 @@ function handleChar(c, line, char) {
             // ]    End of loop
             var counter = getValueFromCursor();
             if (counter !== 0) {
-                tup = loopStack[loopStack.length-1];
+                tup = loopStack[loopStack.length - 1];
                 console.log("Stack pop: " + tup);
                 console.log(loopStack);
                 tup[1]--;
@@ -165,33 +170,33 @@ function pauseButton() {
         $("#pauseButton").html("Pause");
 
         state = runningStates.RUNNING;
-        
+
         handleCode(lastArray, lastX, lastY);
-    } 
+    }
 }
 
 function stepButton() {
-    if(state === runningStates.STOPPED){
+    if (state === runningStates.STOPPED) {
         $("#pauseButton").prop("disabled", false);
         $("#startButton").prop("disabled", true);
         $("#pauseButton").prop("class", "btn btn-success");
         $("#pauseButton").html("Resume");
         $("#stopButton").prop("disabled", false);
-        
+
         togglePanel();
         toggleInput();
         adjustCursor();
         lastArray = initializeArray();
-        
+
         lastX = 0;
         lastY = 0;
-    } 
+    }
     state = runningStates.STEP;
-    handleCode(lastArray, lastX, lastY); 
+    handleCode(lastArray, lastX, lastY);
 }
 
 function stopButton() {
-    if (state === runningStates.RUNNING || state === runningStates.PAUSED || 
+    if (state === runningStates.RUNNING || state === runningStates.PAUSED ||
             state === runningStates.STEP) {
         $("#startButton").prop("disabled", false);
         $("#pauseButton").prop("disabled", true);
@@ -231,7 +236,8 @@ function submitButton() {
         $("#inputForm").hide();
         $("#input").prop("disabled", true);
 
-        state = lastState;;
+        state = lastState;
+        ;
         handleCode(lastArray, lastX, lastY);
     }
 }
@@ -334,14 +340,14 @@ function clearOutput() {
 
 function handleCode(codeArray, index1, index2) {
     setTimeout(function () {
-        var tup= handleChar(codeArray[index1][index2], index1, index2);
+        var tup = handleChar(codeArray[index1][index2], index1, index2);
         index1 = tup[0];
         index2 = ++tup[1];
-        if(index2 >= codeArray[index1].length){
+        if (index2 >= codeArray[index1].length) {
             index1++;
             index2 = 0;
         }
-        if(state === runningStates.RUNNING && index1 < codeArray.length && index2 < codeArray[index1].length){
+        if (state === runningStates.RUNNING && index1 < codeArray.length && index2 < codeArray[index1].length) {
             handleCode(codeArray, index1, index2);
         } else {
             lastX = index1;
@@ -362,4 +368,18 @@ $(document).ready(function () {
     $("#stopButton").bind("click", stopButton);
     $("#submit").bind("click", submitButton);
     $("#step").bind("change", updateStep);
+    $("[data-toggle='popover']").popover();
 });
+
+function toggleHelp() {
+    if (!helpOpen) {
+        $("#sidehelp").css("display", "block");
+        $("#sidehelp").css("width", "20%");
+        helpOpen = true;
+    } else {
+        $("#sidehelp").css("display", "none");
+        $("#sidehelp").css("width", "0%");
+        helpOpen = false;
+    }
+
+}

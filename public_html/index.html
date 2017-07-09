@@ -20,7 +20,54 @@
         <script src="js/main.js"></script>
     </head>
     <body>
-
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Online BrainF@#$ Interpreter</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="#" onclick="toggleHelp()">Help</a></li>
+                    <li><a href="https://en.wikipedia.org/wiki/Brainfuck" target="_blank">What is this?</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div id="sidehelp" class="sidenav">
+            <style>
+                p, li{
+                    color:graytext;
+                }
+            </style>
+            <a href="javascript:void(0)" onclick="toggleHelp()">Close</a>
+            <p>
+                This is an online tool for the Brainf@#$ programming language. 
+            </p>
+            <p>Here are all of the supported commands:</p>
+            <ul>
+                <li>+   Increase the value of the cell at the pointer by 1</li>
+                <li>-   Decrease the value of the cell at the pointer by 1</li>
+                <li>>   Move the pointer up 1 position</li>
+                <li><   Move the pointer down 1 position</li>
+                <li>[   Start a loop</li>
+                <li>]   End a loop. If the pointer is at 0, the program continues.
+                Otherwise, the loop goes back to the corresponding opening brace.</li>
+                <li>.   Print the character represented by the value at the pointer to the standard output</li>
+                <li>,   Accept one byte of input from standard input</li>
+            </ul>
+            <p>Any characters that are not one of the listed commands is ignored.
+            This includes whitespace.</p>
+            <p>There are included premade programs. To load them, select them from
+            the dropdown menu.</p>
+            <p>Buttons:</p>
+            <ul>
+                <li>Start - Run the program in the text field</li>
+                <li>Step - Run only the next command</li>
+                <li>Pause - Pause execution of the program</li>
+                <li>Stop - Stop execution of the program</li>
+            </ul>
+            <p>The Step meter determines how fast the program will go through
+            each command. You can slow down or increase the execution speed by
+            adjusting the meter.</p>
+        </div>
         <div class="row">
             <div ng-controller="TapeCtrl">
                 <table class="table-bordered" id="cellTable">
